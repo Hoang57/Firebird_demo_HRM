@@ -1,50 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="stylesheet" href="/static/style.css" />
-  <link rel="stylesheet" href="static/bootstrap.min.css" />
-  <title>HRM Dashboard</title>
+<!-- Head -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css" />
 
-</head>
-<body>
-    
-  <div class="sidebar" id="sidebar">
-    <button class="toggle-btn" id="toggleBtn">&#8592;</button>
-    <h2>HRM</h2>
-    <ul>
-      <li onclick="loadPage('index/employee')">Employee Management</li>
-      <li onclick="loadPage('index/department')">Section Management</li>
-      <li onclick="loadPage('index/timekeeping')">Timekeeping Management</li>
-      <li onclick="showForm('payrollForm')">Payroll</li>
-      <li onclick="loadPage('index/contract')">Labor contract management</li>
-      <li onclick="loadPage('index/employee_evaluation')">Employee evaluation</li>
-      <li onclick="showForm('payrollForm')">Payroll</li>
-      <li onclick="loadPage('index/HR_statistics')">Human resource statistics report</li>
-    </ul>
-  </div>
-  <div class="content">
-    <iframe id="contentFrame" src=""></iframe>
+
+<div class="sidebar" id="sidebar">
+  <!-- Icons -->
+  <i class="bi bi-people-fill nav-icon active" onclick="loadPage('index/employee')"></i>
+  <i class="bi bi-speedometer2 nav-icon" onclick="loadPage('index/department')"></i>
+  <i class="bi bi-table nav-icon" onclick="loadPage('index/timekeeping')"></i>
+  <i class="bi bi-grid nav-icon" onclick="loadPage('index/contract')"></i>
+  <i class="bi bi-person nav-icon" onclick="loadPage('index/employee_evaluation')"></i>
+  <i class="bi bi-bar-chart-line nav-icon" onclick="loadPage('index/HR_statistics')"></i>
+
+  <!-- User profile section -->
+  <div class="user-section">
+    <img src="/static/images/user-icon.png" alt="User Icon" class="user-icon" id="userDropdownBtn">
+    <button class="user-dropdown-btn" id="userDropdownArrow">&#9662;</button>
   </div>
 
-  <script>
-    function loadPage(url) {
-      document.getElementById('contentFrame').src = url;
+  <!-- Dropdown menu -->
+  <div class="dropdown-menu" id="userDropdownMenu">
+    <a href="#" onclick="loadPage('change_password')">Change Password</a>
+    <a href="/">Logout</a>
+  </div>
+</div>
+
+<div class="content">
+  <iframe id="contentFrame" src=""></iframe>
+</div>
+
+<script>
+  function loadPage(url) {
+    document.getElementById('contentFrame').src = url;
+    document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  const userBtn = document.getElementById("userDropdownBtn");
+  const userArrow = document.getElementById("userDropdownArrow");
+  const dropdown = document.getElementById("userDropdownMenu");
+
+  userBtn.addEventListener("click", toggleDropdown);
+  userArrow.addEventListener("click", toggleDropdown);
+
+  function toggleDropdown() {
+    const isVisible = dropdown.style.display === "flex";
+    dropdown.style.display = isVisible ? "none" : "flex";
+  }
+
+  document.addEventListener("click", (event) => {
+    if (!userBtn.contains(event.target) && !userArrow.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.style.display = "none";
     }
-
-    function showForm(name) {
-      // Tùy chỉnh nếu cần xử lý form
-      alert("Open form: " + name);
-    }
-
-    const sidebar = document.getElementById("sidebar");
-    const toggleBtn = document.getElementById("toggleBtn");
-
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("collapsed");
-      toggleBtn.innerHTML = sidebar.classList.contains("collapsed") ? "&laquo;" : "&raquo;";
-    });
-  </script>
-</body>
-</html>
+  });
+</script>

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from website.services.login import LoginService
 
 auth = Blueprint('auth', __name__)
 
@@ -14,14 +15,15 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == 'admin' and password == '123456':
-            session['user'] = username
-            return redirect(url_for('views.index'))  # views là tên Blueprint khác
+        result = LoginService(username, password)
+        
+        if result != '[0]':
+            return redirect(url_for('views.index'))  
         else:
             flash('Invalid username or password.')
             return redirect(url_for('auth.login'))
 
-    return render_template('home.html')  # Trang login
+    return render_template('login.html')  # Trang login
 
 @auth.route('/auth/logout')
 def logout():
