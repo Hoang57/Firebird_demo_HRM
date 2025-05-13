@@ -1,89 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Employee Contract Management</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Employee Contract Management</h1>
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('views.contract') }}">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="employee_name" class="form-label">Employee Name:</label>
-                            <input type="text" id="employee_name" name="employee_name" class="form-control" placeholder="Enter employee name" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="contract_type" class="form-label">Contract Type:</label>
-                            <select id="contract_type" name="contract_type" class="form-select" required>
-                                <option value="full_time">Full-Time</option>
-                                <option value="part_time">Part-Time</option>
-                                <option value="internship">Internship</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="start_date" class="form-label">Start Date:</label>
-                            <input type="date" id="start_date" name="start_date" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="end_date" class="form-label">End Date:</label>
-                            <input type="date" id="end_date" name="end_date" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="salary" class="form-label">Salary:</label>
-                            <input type="number" id="salary" name="salary" class="form-control" placeholder="Enter salary" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="notes" class="form-label">Notes:</label>
-                            <textarea id="notes" name="notes" class="form-control" rows="3" placeholder="Additional notes"></textarea>
-                        </div>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary w-50">Save Contract</button>
-                    </div>
-                </form>
+      <h1 class="text-center mb-4">Employee Contract Management</h1>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <form method="POST" action="{{ url_for('views.contract') }}">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="employee_name" class="form-label"
+                  >Employee Name:</label
+                >
+                <input
+                  type="text"
+                  id="employee_name"
+                  name="employee_name"
+                  class="form-control"
+                  placeholder="Enter employee name"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="contract_type" class="form-label"
+                  >Contract Type:</label
+                >
+                <select
+                  id="contract_type"
+                  name="contract_type"
+                  class="form-select"
+                  required
+                >
+                  <option value="full_time">Full-Time</option>
+                  <option value="part_time">Part-Time</option>
+                  <option value="internship">Internship</option>
+                </select>
+              </div>
             </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="start_date" class="form-label">Start Date:</label>
+                <input
+                  type="date"
+                  id="start_date"
+                  name="start_date"
+                  class="form-control"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="end_date" class="form-label">End Date:</label>
+                <input
+                  type="date"
+                  id="end_date"
+                  name="end_date"
+                  class="form-control"
+                />
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="salary" class="form-label">Salary:</label>
+                <input
+                  type="number"
+                  id="salary"
+                  name="salary"
+                  class="form-control"
+                  placeholder="Enter salary"
+                  required
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="notes" class="form-label">Notes:</label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Additional notes"
+                ></textarea>
+              </div>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary w-50">
+                Save Contract
+              </button>
+            </div>
+          </form>
         </div>
-        <hr class="my-5">
-        <h2 class="text-center mb-4">Existing Contracts</h2>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Employee Name</th>
-                        <th>Contract Type</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
-                        <th>Salary</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for contract in contracts %}
-                    <tr>
-                        <td>{{ contract.employee_name }}</td>
-                        <td>{{ contract.contract_type }}</td>
-                        <td>{{ contract.start_date }}</td>
-                        <td>{{ contract.end_date }}</td>
-                        <td>{{ contract.salary }}</td>
-                        <td>
-                            <a href="{{ url_for('edit_contract', contract_id=contract.id) }}" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="{{ url_for('delete_contract', contract_id=contract.id) }}" class="btn btn-danger btn-sm">Delete</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+      </div>
+      <hr class="my-5" />
+      <h2 class="text-center mb-4">Existing Contracts</h2>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-dark">
+            <tr>
+              <th>Employee Name</th>
+              <th>Contract Type</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Salary</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contract in contracts %}
+            <tr>
+              <td>{{ contract.employee_name }}</td>
+              <td>{{ contract.contract_type }}</td>
+              <td>{{ contract.start_date }}</td>
+              <td>{{ contract.end_date }}</td>
+              <td>{{ contract.salary }}</td>
+              <td>
+                <a
+                  href="{{ url_for('edit_contract', contract_id=contract.id) }}"
+                  class="btn btn-warning btn-sm"
+                  >Edit</a
+                >
+                <a
+                  href="{{ url_for('delete_contract', contract_id=contract.id) }}"
+                  class="btn btn-danger btn-sm"
+                  >Delete</a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>

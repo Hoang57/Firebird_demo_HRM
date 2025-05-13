@@ -1,29 +1,47 @@
-
 import json
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from website.database.database import connect
-# Hàm hỗ trợ chuyển đổi kiểu dữ liệu
+import jwt
+
+SECRET_KEY = '123456'  # Thay bằng khóa bí mật thực tế
+ALGORITHM = 'HS256'
+
 def convert_values(obj):
     if isinstance(obj, (date, datetime)):
         return obj.isoformat()
     return obj
 
+def create_jwt_token(data, expires_in_minutes=60):
+    payload = data.copy()
+    payload['exp'] = datetime.utcnow() + timedelta(minutes=expires_in_minutes)
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
 def LoginService(username, password):
     con = connect()
     if con is None:
-        raise ConnectionError("Failed to connect to the database. Please check the 'connect' function.")
+        raise ConnectionError("Failed to connect to the database. Please kiểm tra lại kết nối.")
+
     cur = con.cursor()
-    cur.execute("SELECT COUNT(*) FROM ACCOUNT a WHERE user_name  = ? AND password = ?", (username, password))
+    cur.execute("SELECT * FROM ACCOUNT a WHERE user_name = ? AND password = ?", (username, password))
 
-    # Lấy tên cột
     columns = [desc[0] for desc in cur.description]
-
-    # Lấy dữ liệu và chuyển đổi thành dict
     rows = [dict(zip(columns, [convert_values(value) for value in row])) for row in cur.fetchall()]
-
-    # Chuyển sang JSON
-    result_json = json.dumps(rows, ensure_ascii=False, indent=4)
+    
     con.close()
-    #print(result_json)
-    return result_json
 
+    if not rows:
+        # Trả JSON thông báo lỗi
+        return json.dumps({"error": "Invalid username or password."}, ensure_ascii=False)
+
+    user_data = rows[0]
+
+    # Tạo JWT
+    token = create_jwt_token({
+        "user_id": user_data.get("id"),
+        "username": user_data.get("user_name"),
+        "role": user_data.get("role")
+    })
+
+    # Trả JSON chứa token
+    return json.dumps({"token": token}, ensure_ascii=False)

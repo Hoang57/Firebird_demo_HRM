@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+import json
 from website.services.login import LoginService
 
 auth = Blueprint('auth', __name__)
@@ -7,23 +8,23 @@ auth = Blueprint('auth', __name__)
 # 🔐 Authentication Routes
 # -------------------------------
 
+@auth.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
 
+    result = LoginService(username, password)
 
-@auth.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+    try:
+        result_data = json.loads(result)
+    except json.JSONDecodeError:
+        return jsonify({"error": "Server error."}), 500
 
-        result = LoginService(username, password)
-        
-        if result != '[0]':
-            return redirect(url_for('views.index'))  
-        else:
-            flash('Invalid username or password.')
-            return redirect(url_for('auth.login'))
-
-    return render_template('login.html')  # Trang login
+    if 'token' in result_data:
+        return jsonify(result_data), 200
+    else:
+        return jsonify(result_data), 401
 
 @auth.route('/auth/logout')
 def logout():

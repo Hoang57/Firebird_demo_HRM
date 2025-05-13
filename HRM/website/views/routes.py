@@ -8,6 +8,10 @@ views = Blueprint('views', __name__)
 def home():
     return render_template('home.html')  # Hiển thị trang home.html
 
+@views.route('/login')
+def login():
+    return render_template('login.html')  # Hiển thị trang login.html
+
 @views.route('/index')
 def index():
     if 'user' not in session:

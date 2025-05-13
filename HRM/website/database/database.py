@@ -1,7 +1,5 @@
 import firebirdsql
-# Kết nối đến CSDL
-
-
+# --------------Connect to the database-----------------
 def connect():
     con = firebirdsql.connect(
         host='127.0.0.1',
@@ -12,5 +10,5 @@ def connect():
     )
     return con
 
-
+#------------------------------------------------------
 
