@@ -1,29 +1,43 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, make_response
+from flask import Blueprint, render_template, session, redirect, url_for, flash, make_response, request
 
+import jwt
 
+SECRET_KEY = '123456'
+ALGORITHM = 'HS256'
+
+def verify_jwt_token(token):
+    try:
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
 
 views = Blueprint('views', __name__)
 
 @views.route('/')
 def home():
-    return render_template('home.html')  # Hiển thị trang home.html
-
+    return render_template('home.html')  
 @views.route('/login')
 def login():
-    return render_template('login.html')  # Hiển thị trang login.html
+    return render_template('login.html') 
 
 @views.route('/index')
 def index():
-    if 'user' not in session:
-        flash('You need to log in first.')
+    token = request.cookies.get('jwt_token')
+    if not token:
         return redirect(url_for('views.login'))
-    
-    response = make_response(render_template('index.html'))
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '-1'
-    return response
 
+    user_data = verify_jwt_token(token)
+    if not user_data:
+        return redirect(url_for('views.login'))
+
+    response = make_response(render_template('index.html', user=user_data))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 # -------------------------------

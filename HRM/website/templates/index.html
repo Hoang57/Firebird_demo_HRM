@@ -5,12 +5,12 @@
 
 <div class="sidebar" id="sidebar">
   <!-- Icons -->
-  <i class="bi bi-people-fill nav-icon active" onclick="loadPage('index/employee')"></i>
-  <i class="bi bi-speedometer2 nav-icon" onclick="loadPage('index/department')"></i>
-  <i class="bi bi-table nav-icon" onclick="loadPage('index/timekeeping')"></i>
-  <i class="bi bi-grid nav-icon" onclick="loadPage('index/contract')"></i>
-  <i class="bi bi-person nav-icon" onclick="loadPage('index/employee_evaluation')"></i>
-  <i class="bi bi-bar-chart-line nav-icon" onclick="loadPage('index/HR_statistics')"></i>
+  <i class="bi bi-people-fill nav-icon active" onclick="loadPage('index/employee', event)"></i>
+  <i class="bi bi-speedometer2 nav-icon" onclick="loadPage('index/department', event)"></i>
+  <i class="bi bi-table nav-icon" onclick="loadPage('index/timekeeping', event)"></i>
+  <i class="bi bi-grid nav-icon" onclick="loadPage('index/contract', event)"></i>
+  <i class="bi bi-person nav-icon" onclick="loadPage('index/employee_evaluation', event)"></i>
+  <i class="bi bi-bar-chart-line nav-icon" onclick="loadPage('index/HR_statistics', event)"></i>
 
   <!-- User profile section -->
   <div class="user-section">
@@ -21,7 +21,7 @@
   <!-- Dropdown menu -->
   <div class="dropdown-menu" id="userDropdownMenu">
     <a href="#" onclick="loadPage('change_password')">Change Password</a>
-    <a href="/">Logout</a>
+    <a href="/" onclick="logout()">Logout</a>
   </div>
 </div>
 
@@ -30,12 +30,15 @@
 </div>
 
 <script>
-  function loadPage(url) {
-  document.getElementById('contentFrame').src = url;
-  document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
-  event.target.classList.add('active');
-
+  function loadPage(url, event) {
+    event = event || window.event;
+    document.getElementById('contentFrame').src = url;
+    document.querySelectorAll('.nav-icon').forEach(icon => icon.classList.remove('active'));
+    if (event.target) {
+        event.target.classList.add('active');
+    }
   }
+
 
 
   const userBtn = document.getElementById("userDropdownBtn");
@@ -55,4 +58,29 @@
       dropdown.style.display = "none";
     }
   });
+
+  window.onload = function () {
+    if (window.performance && window.performance.getEntriesByType) {
+        const perfEntries = window.performance.getEntriesByType("navigation");
+        if (perfEntries.length > 0 && perfEntries[0].type === "back_forward") {
+            window.location.href = "/login";  // Locate to login when back/forward
+        }
+    } else if (window.performance && window.performance.navigation) {
+        if (window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD) {
+            window.location.href = "/login";  // Locate to login when back/forward
+        }
+    }
+  };
+
+  function logout() {
+    fetch('/auth/logout')
+        .then(() => {
+            document.getElementById('contentFrame').src = '';
+            window.location.href = '/login';
+        })
+        .catch(() => {
+            alert('Error.');
+        });
+  }
+
 </script>

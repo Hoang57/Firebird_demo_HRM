@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, make_response
 import json
 from website.services.login import LoginService
 from website.services.user import GetEmpolyeeService, insert_employee_to_db
@@ -22,15 +22,19 @@ def api_login():
         return jsonify({"error": "Server error."}), 500
 
     if 'token' in result_data:
-        return jsonify(result_data), 200
+        token = result_data['token']
+        response = make_response(jsonify(result_data), 200)
+        response.set_cookie('jwt_token', token, httponly=True, max_age=3600)
+        return response
     else:
         return jsonify(result_data), 401
 
 @auth.route('/auth/logout')
 def logout():
-    session.pop('user', None)
-    flash('You have been logged out.')
-    return redirect(url_for('auth.login'))
+    response = make_response(redirect(url_for('views.login')))
+    # Delete the jwt_token cookie by setting it with an immediate expiration time
+    response.set_cookie('jwt_token', '', expires=0)
+    return response
 
 @auth.route('/register')
 def register():

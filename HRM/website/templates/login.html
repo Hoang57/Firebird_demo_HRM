@@ -78,22 +78,19 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include'  
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Lưu token vào localStorage
-                    localStorage.setItem('jwt', result.token);
-
-                    // Điều hướng sang trang chính
                     window.location.href = '/index';
                 } else {
-                    alert(result.error || 'Đăng nhập thất bại.');
+                    alert(result.error || 'Fail to login.');
                 }
             } catch (error) {
-                alert('Lỗi kết nối đến máy chủ: ' + error.message);
+                alert('Error: ' + error.message);
             }
         });
     })();
