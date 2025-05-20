@@ -1,6 +1,5 @@
 from flask import Flask, Response, jsonify
 from flask_cors import CORS
-import json
 import datetime
 from website.database.database import connect
 
@@ -81,3 +80,57 @@ def insert_employee_to_db(employee_data):
 
     except Exception as e:
         return False, str(e)
+    
+def update_employee_in_db(employee_data):
+    try:
+        conn = connect()
+        cur = conn.cursor()
+        
+        sql = """
+            UPDATE NHANVIEN
+            SET HOTEN = ?, NGAYSINH = ?, GIOITINH = ?, DIACHI = ?, SODT = ?, EMAIL = ?, MAPB = ?, MACV = ?
+            WHERE MANV = ?
+        """
+        
+        params = (
+            employee_data.get('HOTEN'),
+            employee_data.get('NGAYSINH'),
+            employee_data.get('GIOITINH'),
+            employee_data.get('DIACHI'),
+            employee_data.get('SODT'),
+            employee_data.get('EMAIL'),
+            employee_data.get('MAPB'),
+            employee_data.get('MACV'),
+            
+        )
+        cur.execute(sql, params)
+        conn.commit()
+        if cur.rowcount == 0:
+                jsonify({"error": "Employee not found"}), 404
+
+        return jsonify({"message": "updae employee successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cur.close()
+        conn.close()
+    
+    
+def get_employee_by_id(employee_id):
+    try:
+        conn = connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM NHANVIEN WHERE MANV = ?", (employee_id,))
+        row = cursor.fetchone()
+
+        if row:
+            columns = ["MANV", "HOTEN", "NGAYSINH", "GIOITINH", "DIACHI", "SODT", "EMAIL", "NGAYVAOLAM", "MAPB", "MACV", "ANHDAIDIEN", "TRANGTHAI"]
+            employee = dict(zip(columns, row))
+            return employee  # ✅ chỉ trả về dict
+        else:
+            return None
+    except Exception as e:
+        raise e
+
