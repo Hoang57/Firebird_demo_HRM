@@ -101,17 +101,17 @@ def update_employee_in_db(employee_data):
             employee_data.get('EMAIL'),
             employee_data.get('MAPB'),
             employee_data.get('MACV'),
-            
+            employee_data.get('MANV')
         )
         cur.execute(sql, params)
         conn.commit()
+         
         if cur.rowcount == 0:
-                jsonify({"error": "Employee not found"}), 404
-
-        return jsonify({"message": "updae employee successfully"}), 200
+            return False, "Employee not found"
+        return True, "Employee updated successfully"
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return False, str(e)
 
     finally:
         cur.close()
@@ -133,4 +133,24 @@ def get_employee_by_id(employee_id):
             return None
     except Exception as e:
         raise e
+    
+def delete_employee_from_db(manv):
+    try:
+        conn = connect()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM NHANVIEN WHERE MANV = ?", (manv,))
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            return False, "Employee not found"
+
+        return True, "Employee deleted successfully"
+
+    except Exception as e:
+        return False, str(e)
+
+    finally:
+        cursor.close()
+        conn.close()
+
 

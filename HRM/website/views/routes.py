@@ -1,9 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, make_response, request
-
+import secrets
 import jwt
-
-SECRET_KEY = '123456'
-ALGORITHM = 'HS256'
+from website.config import SECRET_KEY, ALGORITHM
 
 def verify_jwt_token(token):
     try:
@@ -18,26 +16,33 @@ views = Blueprint('views', __name__)
 
 @views.route('/')
 def home():
-    return render_template('home.html')  
+    return render_template('home.html')  # Hiển thị trang home.html
+
 @views.route('/login')
 def login():
-    return render_template('login.html') 
+    return render_template('login.html')  # Hiển thị trang login.html
 
 @views.route('/index')
 def index():
     token = request.cookies.get('jwt_token')
+
     if not token:
         return redirect(url_for('views.login'))
 
     user_data = verify_jwt_token(token)
     if not user_data:
-        return redirect(url_for('views.login'))
+        # Nếu token không hợp lệ thì xóa cookie
+        response = redirect(url_for('views.login'))
+        response.set_cookie('jwt_token', '', expires=0)
+        return response
 
+    # Token hợp lệ → render trang
     response = make_response(render_template('index.html', user=user_data))
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
     return response
+
 
 
 # -------------------------------

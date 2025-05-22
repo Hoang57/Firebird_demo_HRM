@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify, make_response
 import json
 from website.services.login import LoginService
-from website.services.user import GetEmpolyeeService, insert_employee_to_db, update_employee_in_db, get_employee_by_id
+from website.services.user import GetEmpolyeeService, insert_employee_to_db, update_employee_in_db, get_employee_by_id, delete_employee_from_db
 auth = Blueprint('auth', __name__)
 
 # -------------------------------
@@ -73,13 +73,14 @@ def api_update_employee(manv):
     if not data:
         return jsonify({"error": "No data provided"}), 400
 
-    data['MANV'] = manv  # đảm bảo MANV được set vào data
+    data['MANV'] = manv  # đảm bảo có MANV
 
     success, message = update_employee_in_db(data)
     if success:
-        return jsonify({"message": "Employee updated successfully"}), 200
+        return jsonify({"message": message}), 200
     else:
         return jsonify({"error": message}), 400
+
 
 @auth.route('/api/get_emp', methods=['GET'])
 def api_get_emp():
@@ -95,3 +96,15 @@ def api_get_emp():
             return jsonify({"error": "Employee not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@auth.route('/api/delete_employee/<manv>', methods=['DELETE'])
+def api_delete_employee(manv):
+    if not manv:
+        return jsonify({"error": "No employee ID provided"}), 400
+
+    success, message = delete_employee_from_db(manv)  # Chỉ cần truyền mã nhân viên
+    if success:
+        return jsonify({"message": message}), 200
+    else:
+        return jsonify({"error": message}), 400
+

@@ -2,16 +2,16 @@ import json
 from datetime import date, datetime, timedelta
 from website.database.database import connect
 import jwt
+import secrets
+from website.config import SECRET_KEY, ALGORITHM
 
-SECRET_KEY = '123456'  # Thay bằng khóa bí mật thực tế
-ALGORITHM = 'HS256'
 
 def convert_values(obj):
     if isinstance(obj, (date, datetime)):
         return obj.isoformat()
     return obj
 
-def create_jwt_token(data, expires_in_minutes=60):
+def create_jwt_token(data, expires_in_minutes=5):
     payload = data.copy()
     payload['exp'] = datetime.utcnow() + timedelta(minutes=expires_in_minutes)
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
