@@ -11,10 +11,13 @@ def GetEmpolyeeService(keyword):
         if keyword:
             query = """
                 SELECT * FROM nhanvien 
-                WHERE HOTEN LIKE ? OR MANV LIKE ?
+                WHERE HOTEN LIKE ? 
+                OR MANV LIKE ? 
+                OR MAPB LIKE ? 
+                OR MACV LIKE ?
             """
             like_keyword = f"%{keyword}%"
-            cur.execute(query, (like_keyword, like_keyword))
+            cur.execute(query, (like_keyword, like_keyword,like_keyword, like_keyword))
         else:
             cur.execute("SELECT * FROM nhanvien")
 

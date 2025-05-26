@@ -214,7 +214,9 @@
       const recordsPerPage = 10;
 
       function searchEmployee() {
+        debugger;
         const keyword = document.getElementById("searchInput").value.trim();
+        debugger;
         fetch(`/api/employee?query=${encodeURIComponent(keyword)}`)
           .then((response) => response.json())
           .then((data) => {

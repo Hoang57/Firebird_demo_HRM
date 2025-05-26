@@ -73,6 +73,9 @@ def employee_evaluation():
 def HR_statistics():
     return render_template('HR_statistics.html')
 
+@views.route('/index/leave_request')
+def leave_request():
+    return render_template('leave_request.html')
 
 
 

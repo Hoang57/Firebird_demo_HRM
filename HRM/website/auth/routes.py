@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import json
 from website.services.login import LoginService
 from website.services.user import GetEmpolyeeService, insert_employee_to_db, update_employee_in_db, get_employee_by_id, delete_employee_from_db
+from website.services.section import get_section_service, insert_section_to_db, delete_section_from_db
 auth = Blueprint('auth', __name__)
 
 # -------------------------------
@@ -108,3 +109,20 @@ def api_delete_employee(manv):
     else:
         return jsonify({"error": message}), 400
 
+@auth.route('/api/get_section', methods=['GET'])
+def get_section():
+    keyword = request.args.get('query', '').strip()
+    sections = get_section_service(keyword)
+    return jsonify(sections), 200
+
+@auth.route('/api/insert_section', methods=['POST'])
+def api_insert_section():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    success, message = insert_section_to_db(data)
+    if success:
+        return jsonify({"message": "Section inserted successfully"}), 201
+    else:
+        return jsonify({"error": message}), 400

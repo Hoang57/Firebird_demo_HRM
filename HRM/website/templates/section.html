@@ -8,14 +8,14 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2>Department Management</h2>
+        <h2>Section Management</h2>
         <form method="POST" action="{{ url_for('views.department') }}">
             <div class="mb-3">
-                <label for="department_name" class="form-label">Department Name</label>
+                <label for="department_name" class="form-label">Section ID</label>
                 <input type="text" class="form-control" id="department_name" name="department_name" required>
             </div>
             <div class="mb-3">
-                <label for="manager_name" class="form-label">Manager Name</label>
+                <label for="manager_name" class="form-label">Section Name</label>
                 <input type="text" class="form-control" id="manager_name" name="manager_name" required>
             </div>
             <div class="mb-3">
@@ -25,7 +25,7 @@
             <button type="submit" class="btn btn-primary">Add Department</button>
         </form>
 
-        <hr>
     </div>
+
 </body>
 </html>
