@@ -291,7 +291,7 @@
         const form = document.getElementById("employeeForm");
         form.addEventListener("submit", function (event) {
           event.preventDefault();
-
+          debugger;
           const data = {
             HOTEN: form.name.value,
             NGAYSINH: form.dob.value,
@@ -299,7 +299,7 @@
             DIACHI: form.address.value,
             SODT: form.phone.value,
             EMAIL: form.email.value,
-            MAPB: form.department.value,
+            MAPB: form.department.value.trim().toUpperCase(), // Chuyển đổi mã phòng ban thành chữ hoa
             MACV: form.position.value,
           };
 
@@ -324,7 +324,7 @@
 
                 searchEmployee(); // Tải lại bảng dữ liệu
               } else {
-                alert("Lỗi: " + result.error);
+                alert("Error: " + result.error);
               }
             })
             .catch((error) => {
@@ -376,8 +376,6 @@
           MACV: document.getElementById("PositionID").value,
           TRANGTHAI: document.getElementById("Status").value,
         };
-        console.log("Dữ liệu gửi đi:", data);
-
         fetch(`/api/update_employee/${data.MANV}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -410,15 +408,15 @@
             .then((res) => res.json())
             .then((result) => {
               if (result.message) {
-                alert("Xóa nhân viên thành công!");
-                searchEmployee(); // Làm mới danh sách nhân viên
+                alert("Employee delete successfully!");
+               
               } else {
                 alert(result.error || "Xóa thất bại.");
               }
             })
             .catch((err) => {
               console.error("Delete error:", err);
-              alert("Đã xảy ra lỗi khi xóa nhân viên.");
+              alert("An error occurred while deleting the section.");
             });
         }
       }

@@ -11,7 +11,7 @@ def convert_values(obj):
         return obj.isoformat()
     return obj
 
-def create_jwt_token(data, expires_in_minutes=5):
+def create_jwt_token(data, expires_in_minutes=30): #set time token expire 
     payload = data.copy()
     payload['exp'] = datetime.utcnow() + timedelta(minutes=expires_in_minutes)
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)

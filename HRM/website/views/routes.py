@@ -1,4 +1,8 @@
-from flask import Blueprint, render_template, session, redirect, url_for, flash, make_response, request
+from flask import Blueprint, render_template, session, redirect, url_for, flash, make_response, request, send_file
+import pandas as pd
+import io
+from datetime import datetime
+from website.services.HR_report import get_data_for_report  # nếu anh tách ra riêng
 import secrets
 import jwt
 from website.config import SECRET_KEY, ALGORITHM
@@ -77,5 +81,54 @@ def HR_statistics():
 def leave_request():
     return render_template('leave_request.html')
 
+#Generate HR Report-------------------------------
 
+@views.route('/generate_report', methods=['POST'])
+def generate_report():
+    department = request.form.get('department')
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    report_type = request.form.get('report_type', 'both')
 
+    # 🔽 Lấy dữ liệu từ database theo phòng ban
+    data = get_data_for_report(department)
+    print(f"Data retrieved for department {department}: {data}")
+    # Chuyển sang DataFrame
+    df = pd.DataFrame(data)
+    df['ngayvaolam'] = pd.to_datetime(df['ngayvaolam'])
+
+    # 🔽 Lọc theo thời gian vào làm
+    df_filtered = df[
+        (df['ngayvaolam'] >= pd.to_datetime(start_date)) &
+        (df['ngayvaolam'] <= pd.to_datetime(end_date))
+    ]
+
+    # Summary: chỉ thông tin chính
+    df_summary = df_filtered[['manv', 'hoten', 'mapb', 'macv']]
+    
+    # Detailed: đầy đủ thông tin hợp đồng
+    df_detailed = df_filtered[[
+        'manv', 'hoten', 'mapb', 'macv', 'ngayvaolam',
+        'ngayhieuluc', 'ngayhethan', 'luongcoban'
+    ]]
+
+    # Ghi vào file Excel
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        if report_type == 'summary':
+            df_summary.to_excel(writer, sheet_name='Summary Report', index=False)
+        elif report_type == 'detailed':
+            df_detailed.to_excel(writer, sheet_name='Detailed Report', index=False)
+        else:
+            df_summary.to_excel(writer, sheet_name='Summary Report', index=False)
+            df_detailed.to_excel(writer, sheet_name='Detailed Report', index=False)
+
+    output.seek(0)
+
+    filename = f"HR_Report_{department}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+    return send_file(
+        output,
+        download_name=filename,
+        as_attachment=True,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )

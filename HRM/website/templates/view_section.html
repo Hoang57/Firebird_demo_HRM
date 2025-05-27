@@ -13,7 +13,7 @@
         <form id="searchForm" class="d-flex mb-4" onsubmit="searchSection(); return false;">
             <input type="text" id="searchInput" class="form-control me-2" placeholder="Search section...">
             <button type="submit" class="btn btn-primary me-2">Search</button>
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSectionModal">Add</button>
+            <button type="button" class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addSectionModal">Add</button>
         </form>
         
         <table class="table table-bordered table-striped">
@@ -30,18 +30,38 @@
     
     <!-- Modal -->
     <div class="modal fade" id="addSectionModal" tabindex="-1" aria-labelledby="addSectionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addSectionModalLabel">Add New Section</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    {% include 'section.html' %}
+                    <form id="addSectionForm" method="POST" action="{{ url_for('views.department') }}">
+                        <div class="mb-3">
+                            <label for="department_name" class="form-label">Section ID</label>
+                            <input type="text" class="form-control" id="Section_ID" name="Section_ID" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="manager_name" class="form-label">Section Name</label>
+                            <input type="text" class="form-control" id="Section_name" name="Section_name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add Section</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+
 
     <!-- Pagination: căn phải -->
     <div class="d-flex justify-content-end mt-3">
@@ -54,7 +74,7 @@
 
         let allSection = [];
         let currentPage = 1;
-        const recordsPerPage = 5;
+        const recordsPerPage = 10;
 
         function searchSection()
         {
@@ -97,8 +117,7 @@
                 <td>${sec.TENPB}</td>
 
                 <td>
-                    <a onclick="openEditModal('${sec.MAPB}')" class="btn btn-warning btn-sm">Edit</a>
-                    <a href="#" class="btn btn-danger btn-sm" onclick="deleteEmployee('${sec.MAPB}')">Delete</a>
+                    <a href="#" class="btn btn-danger btn-sm" onclick="deleteSection('${sec.MAPB}')">Delete</a>
                 </td>
                 </tr>
             `;
@@ -126,6 +145,77 @@
                     renderPagination();
                 });
                 pagination.appendChild();
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            debugger;
+            const form = document.getElementById("addSectionForm");
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                const data = {
+                    MAPB: form.Section_ID.value,
+                    TENPB: form.Section_name.value,
+                    MOTA: form.description.value
+                }
+
+                fetch("/api/insert_section", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        alert("Section added successfully!");
+                        form.reset();
+                        const modalEl = document.getElementById("addSectionModal");
+                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+                        if(modalInstance) {
+                            modalInstance.hide();
+                        }
+                        searchSection(); // Refresh the section list  
+                    } else {
+                        alert("Error adding section: " + data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("An error occurred while adding the section.");
+                });
+            });
+        });
+
+        function deleteSection(mapb)
+        {
+            if(!mapb) {
+                alert("Section ID is not valid.");
+                return;
+            }
+
+            if(confirm("Are you sure you want to delete this section?")) {
+                fetch(`/api/delete_section/${mapb}`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({}) // Gửi rỗng nếu API không yêu cầu thêm
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if(data.success) {
+                        alert("Section deleted successfully!");
+                        searchSection(); // Refresh the section list
+                    } else {
+                        alert("Error deleting section: " + data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    alert("An error occurred while deleting the section.");
+                });
             }
         }
         

@@ -42,7 +42,7 @@ def insert_section_to_db(section_data):
         cur = conn.cursor()
         
         query = """
-            INSERT INTO phongban (MAPB, TENPB, MOTA)
+            INSERT INTO phongban
             VALUES (?, ?, ?)
         """
         values = (
@@ -56,11 +56,11 @@ def insert_section_to_db(section_data):
         
         cur.close()
         conn.close()
-        return True, "Insert section successfully"
+        return True, None
         
     except Exception as e:
         print("Error:", e)
-        return False, "Lỗi khi kết nối đến cơ sở dữ liệu" 
+        return False, str(e)
     
 def delete_section_from_db(mapb):
     try: 

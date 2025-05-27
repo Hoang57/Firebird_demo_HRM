@@ -3,7 +3,7 @@ from flask_cors import CORS
 import datetime
 from website.database.database import connect
 
-def GetEmpolyeeService(keyword):
+def GetEmployeeService(keyword):
     try:
         con = connect()
         cur = con.cursor()
@@ -41,6 +41,8 @@ def GetEmpolyeeService(keyword):
     except Exception as e:
         print("Error:", e)
         return []
+
+
 
 def insert_employee_to_db(employee_data):
     try:
