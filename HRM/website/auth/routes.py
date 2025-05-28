@@ -6,6 +6,8 @@ from website.services.section import get_section_service, insert_section_to_db, 
 from website.services.leave import get_leave_requests, insert_leave_request, delete_leave_request
 from website.services.Timkeeping import get_attendance_and_leave_data
 from website.services.Contract import getContractService, insert_contract_to_db, delete_contract, update_contract, get_contract_by_id
+from website.services.HR_report import get_section_data
+from website.services.evaluation import get_data_evaluation
 auth = Blueprint('auth', __name__)
 
 # -------------------------------
@@ -251,4 +253,28 @@ def api_get_contract():
             return jsonify({"error": "Contract not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+#------------------------------HR Report Routes-------------------------------
+@auth.route('/api/hr_report', methods=['POST'])
+def get_all_section():
+    try:
+        sections = get_section_data()  # Gọi đúng hàm lấy dữ liệu
+        return jsonify(sections), 200
+    except Exception as e:
+        print("Error retrieving sections:", e)
+        return jsonify({"error": str(e)}), 500
+    
+#--------------------------Evaluation----------------------------------------
+@auth.route('/api/get_evaluation', methods=['GET'])
+def api_get_evaluation():
+    try:
+        keyword = request.args.get('query', '').strip()
+        employees = get_data_evaluation(keyword)
+        return jsonify(employees), 200
+    except Exception as e:
+        print("API Error:", e)
+        return jsonify({"error": "Internal Server Error"}), 500
+
+
+
 

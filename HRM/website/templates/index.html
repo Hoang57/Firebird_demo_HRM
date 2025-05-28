@@ -10,13 +10,12 @@
   <i class="bi bi-calendar nav-icon" onclick="loadPage('index/leave_request', event)"></i>
   <i class="bi bi-table nav-icon" onclick="loadPage('index/timekeeping', event)"></i>
   <i class="bi bi-grid nav-icon" onclick="loadPage('index/contract', event)"></i>
-  <i class="bi bi-person nav-icon" onclick="loadPage('index/employee_evaluation', event)"></i>
+  <i class="bi bi-person nav-icon" onclick="loadPage('index/view_evaluation', event)"></i>
   <i class="bi bi-bar-chart-line nav-icon" onclick="loadPage('index/HR_statistics', event)"></i>
 
   <!-- User profile section -->
   <div class="user-section">
-    <img src="/static/images/user-icon.png" alt="User Icon" class="user-icon" id="userDropdownBtn">
-    <button class="user-dropdown-btn" id="userDropdownArrow">&#9662;</button>
+    <i class="bi bi-person-circle user-icon" id="userDropdownBtn" style="font-size: 1.7em; vertical-align: middle; cursor: pointer;"></i>
   </div>
 
   <!-- Dropdown menu -->
@@ -47,7 +46,6 @@
   const dropdown = document.getElementById("userDropdownMenu");
 
   userBtn.addEventListener("click", toggleDropdown);
-  userArrow.addEventListener("click", toggleDropdown);
 
   function toggleDropdown() {
     const isVisible = dropdown.style.display === "flex";

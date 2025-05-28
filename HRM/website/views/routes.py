@@ -80,34 +80,48 @@ def HR_statistics():
 @views.route('/index/leave_request')
 def leave_request():
     return render_template('leave_request.html')
+@views.route('/index/view_evaluation')
+def view_evaluation():
+    return render_template('view_emplyee_evaluation.html')
 
-#Generate HR Report-------------------------------
+#--------------------------Generate HR Report-------------------------------
 
 @views.route('/generate_report', methods=['POST'])
 def generate_report():
+    # Lấy thông tin từ form
     department = request.form.get('department')
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
     report_type = request.form.get('report_type', 'both')
 
-    # 🔽 Lấy dữ liệu từ database theo phòng ban
-    data = get_data_for_report(department)
-    print(f"Data retrieved for department {department}: {data}")
+    # Nếu không chọn phòng ban hoặc chọn 'all', truyền 'all' cho hàm lấy dữ liệu
+    if not department or department.lower() == 'all':
+        department_param = 'all'
+    else:
+        department_param = department
+
+    # 🔽 Lấy dữ liệu từ database theo phòng ban và thời gian
+    data = get_data_for_report(department_param, start_date, end_date)
+    print(f"Data retrieved for department {department_param} from {start_date} to {end_date}: {data}")
+
+    # Nếu không có dữ liệu, trả về thông báo lỗi
+    if not data:
+        return "No data available for the selected filters.", 404
+
     # Chuyển sang DataFrame
     df = pd.DataFrame(data)
+
+    # Xử lý nếu không có cột cần thiết
+    if 'ngayvaolam' not in df.columns:
+        return "Missing 'ngayvaolam' in data.", 500
+
     df['ngayvaolam'] = pd.to_datetime(df['ngayvaolam'])
 
-    # 🔽 Lọc theo thời gian vào làm
-    df_filtered = df[
-        (df['ngayvaolam'] >= pd.to_datetime(start_date)) &
-        (df['ngayvaolam'] <= pd.to_datetime(end_date))
-    ]
-
     # Summary: chỉ thông tin chính
-    df_summary = df_filtered[['manv', 'hoten', 'mapb', 'macv']]
-    
+    df_summary = df[['manv', 'hoten', 'mapb', 'macv']]
+
     # Detailed: đầy đủ thông tin hợp đồng
-    df_detailed = df_filtered[[
+    df_detailed = df[[
         'manv', 'hoten', 'mapb', 'macv', 'ngayvaolam',
         'ngayhieuluc', 'ngayhethan', 'luongcoban'
     ]]
@@ -124,8 +138,9 @@ def generate_report():
             df_detailed.to_excel(writer, sheet_name='Detailed Report', index=False)
 
     output.seek(0)
+    safe_department = department_param if department_param != 'all' else 'All_Sections'
+    filename = f"HR_Report_{safe_department}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
 
-    filename = f"HR_Report_{department}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
     return send_file(
         output,
         download_name=filename,
