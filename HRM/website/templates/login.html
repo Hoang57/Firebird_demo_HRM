@@ -1,100 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HUMAN RESOURCE MANAGEMENT</title>
-    <link rel="stylesheet" href="/static/home.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HUMAN RESOURCE MANAGEMENT</title>
+  <link rel="stylesheet" href="/static/home.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg w-100" style="background-color: #003366;">
-       <div class="container-fluid">
-          <a class="navbar-brand text-white" href="/">HRM</a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-             <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="/login">Login</a>
-                </li>
-             </ul>
-          </div>
-       </div>
-    </nav>
-
-    
-    <div class="container">
-       <form class="login-form needs-validation" novalidate>
-            <h1>Login Page</h1>
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ messages[0] }}
-                    </div>
-                {% endif %}
-            {% endwith %}
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-                <div class="invalid-feedback">
-                    Please enter your username.
-                </div>
-            </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-                <div class="invalid-feedback">
-                    Please enter your password.
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-        </form>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg w-100" style="background-color: #003366;">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white" href="/">HRM</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link text-white" href="/login">Login</a>
+          </li>
+        </ul>
+      </div>
     </div>
-</body>
-    <!-- Bootstrap JS (optional, for validation or interactivity) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+  </nav>
+
+  <!-- Login Form -->
+  <div class="container mt-5" style="max-width: 450px;">
+    <form class="login-form needs-validation" novalidate>
+      <h2 class="text-center mb-4">Login</h2>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="alert alert-danger" role="alert">
+            {{ messages[0] }}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+        <div class="invalid-feedback">
+          Please enter your username.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" name="password" required>
+        <div class="invalid-feedback">
+          Please enter your password.
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Login</button>
+    </form>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Login Script -->
+  <script>
     (function () {
-        'use strict';
-        const form = document.querySelector('.login-form');
+      'use strict';
+      const form = document.querySelector('.login-form');
 
-        form.addEventListener('submit', async function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            form.classList.add('was-validated');
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        form.classList.add('was-validated');
+        if (!form.checkValidity()) return;
 
-            if (!form.checkValidity()) return;
+        const username = form.username.value;
+        const password = form.password.value;
 
-            const username = form.username.value;
-            const password = form.password.value;
+        try {
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include'
+          });
 
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password }),
-                    credentials: 'include'  
-                });
+          const result = await response.json();
 
-                const result = await response.json();
+          if (response.ok && result.token) {
+              localStorage.setItem('access_token', result.token);
+              localStorage.setItem('user_role', result.role);
+              localStorage.setItem('user_section', result.section);
+              localStorage.setItem('username', result.username); // Thêm dòng này
 
-                if (response.ok) {
-                    window.location.href = '/index';
-                } else {
-                    alert(result.error || 'Fail to login.');
-                }
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
+            // ✅ Chuyển hướng sang giao diện chính
+            window.location.href = '/index';
+          } else {
+            alert(result.error || 'Sai tài khoản hoặc mật khẩu.');
+          }
+
+        } catch (error) {
+          alert('Lỗi kết nối đến máy chủ: ' + error.message);
+        }
+      });
     })();
-</script>
+  </script>
 
 </body>
 </html>

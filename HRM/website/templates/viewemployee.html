@@ -167,8 +167,9 @@
                       <div class="col-md-6">
                         <label for="editTRANGTHAI" class="form-label fw-semibold">Status</label>
                         <select id="Status" name="STATUS" class="form-select" required>
-                          <option value="Đang làm">Đang làm</option>
-                          <option value="Nghỉ việc">Nghỉ việc</option>
+                          <option value="Đang làm">On work</option>
+                          <option value="Nghỉ việc">Resign</option>
+                           <option value="Nghỉ việc">Trial</option>
                         </select>
                       </div>
                     </div>
@@ -198,14 +199,15 @@
         </thead>
         <tbody id="employeeTable"></tbody>
       </table>
-    </div>
-
-    <!-- Pagination: căn phải -->
+      <!-- Pagination: căn phải -->
     <div class="d-flex justify-content-end mt-3">
       <nav>
         <ul id="pagination" class="pagination mb-0"></ul>
       </nav>
     </div>
+    </div>
+
+    
 
     <script>
 

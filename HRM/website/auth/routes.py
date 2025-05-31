@@ -1,5 +1,7 @@
 from flask import Blueprint, request, redirect, url_for, jsonify, make_response
 import json
+import jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from website.services.login import LoginService
 from website.services.user import GetEmployeeService, insert_employee_to_db, update_employee_in_db, get_employee_by_id, delete_employee_from_db
 from website.services.section import get_section_service, insert_section_to_db, delete_section_from_db
@@ -7,7 +9,8 @@ from website.services.leave import get_leave_requests, insert_leave_request, del
 from website.services.Timkeeping import get_attendance_and_leave_data
 from website.services.Contract import getContractService, insert_contract_to_db, delete_contract, update_contract, get_contract_by_id
 from website.services.HR_report import get_section_data
-from website.services.evaluation import get_data_evaluation
+from website.services.evaluation import get_data_evaluation_by_admin, get_data_evaluation_by_user, insert_evaluation
+from website.services.create_account import insert_account
 auth = Blueprint('auth', __name__)
 
 # -------------------------------
@@ -28,13 +31,12 @@ def api_login():
         return jsonify({"error": "Server error."}), 500
 
     if 'token' in result_data:
-        token = result_data['token']
         response = make_response(jsonify(result_data), 200)
-        response.set_cookie('jwt_token', token, httponly=True, max_age=3600)
+        response.set_cookie('jwt_token', result_data['token'], httponly=True, max_age=3600, samesite='Lax')
         return response
     else:
         return jsonify(result_data), 401
-
+    
 @auth.route('/auth/logout')
 def logout():
     response = make_response(redirect(url_for('views.login')))
@@ -269,12 +271,49 @@ def get_all_section():
 def api_get_evaluation():
     try:
         keyword = request.args.get('query', '').strip()
-        employees = get_data_evaluation(keyword)
+        employees = get_data_evaluation_by_admin(keyword)
+        return jsonify(employees), 200
+    except Exception as e:
+        print("API Error:", e)
+        return jsonify({"error": "Internal Server Error"}), 500
+    
+    
+@auth.route('/api/get_evaluation_user', methods=['GET'])
+def api_get_evaluation_user():
+    try:
+        keyword = request.args.get('query', '').strip()
+        section_id = request.args.get('section_id', '').strip()
+        employees = get_data_evaluation_by_user(keyword, section_id)
         return jsonify(employees), 200
     except Exception as e:
         print("API Error:", e)
         return jsonify({"error": "Internal Server Error"}), 500
 
+
+
+@auth.route('/api/insert_evaluation', methods=['POST'])
+def api_insert_evaluation():
+    data = request.get_json()
+   
+    success, error = insert_evaluation(data)
+    if success:
+        return jsonify({"message": "Đánh giá được lưu thành công."})
+    else:
+        return jsonify({"error": error}), 400
+
+    
+#------------------------Create account-------------------------------------
+@auth.route('/api/insert_account', methods=['POST'])
+def api_insert_account():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+
+    success, message = insert_account(data)
+    if success:
+        return jsonify({"message": "Account inserted successfully"}), 201
+    else:
+        return jsonify({"error": message}), 400
 
 
 

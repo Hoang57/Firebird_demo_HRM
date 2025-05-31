@@ -84,6 +84,14 @@ def leave_request():
 def view_evaluation():
     return render_template('view_emplyee_evaluation.html')
 
+@views.route('/index/create_account')
+def create_account():
+    return render_template('create_account.html')
+
+@views.route('/index/employee_evaluation')
+def evaluation():
+    return render_template('/index/employee_evaluation.html')
+
 #--------------------------Generate HR Report-------------------------------
 
 @views.route('/generate_report', methods=['POST'])

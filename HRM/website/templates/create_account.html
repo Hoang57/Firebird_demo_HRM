@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container vh-100 d-flex justify-content-center align-items-center">
+    <div class="row w-100 justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow border-0">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create New Account</h4>
+          </div>
+          <div class="card-body">
+            <form id="createAccountForm">
+              <div class="mb-3">
+                <label for="username" class="form-label fw-semibold">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label fw-semibold">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required />
+              </div>
+              <div class="mb-3">
+                <label for="role" class="form-label fw-semibold">Role</label>
+                <select class="form-select" id="role" name="role" required>
+                  <option value="">-- Select Role --</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="section" class="form-label fw-semibold">Section</label>
+                <input type="text" class="form-control" id="section" name="section" required />
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-success">Create Account</button>
+              </div>
+            </form>
+            <div id="responseMessage" class="mt-3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("createAccountForm");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const data = {
+          USER_NAME: form.username.value,
+          PASSWORD: form.password.value,
+          ACC_ROLE: form.role.value,
+          ACC_SECTION: form.section.value
+        };
+
+        fetch("/api/insert_account", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            if (result.message) {
+              alert(result.message);
+              form.reset();
+            } else {
+              alert("Error: " + result.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Send data error: ", error);
+            alert("Send data error.");
+          });
+      });
+    });
+  </script>
+
+
+  <!-- JS & Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
