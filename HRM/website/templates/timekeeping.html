@@ -81,15 +81,20 @@
 
                     data.forEach(item => {
                         const row = document.createElement('tr');
+                        const fields = [
+                            { value: item.MANV, key: 'MANV' },
+                            { value: item.NGAYCHAMCONG, key: 'NGAYCHAMCONG' },
+                            { value: item.GIOVAO, key: 'GIOVAO' },
+                            { value: item.GIORA, key: 'GIORA' },
+                            { value: item.STATUS, key: 'STATUS' },
+                            { value: item.NOTES, key: 'NOTES' }
+                        ];
 
-                        row.innerHTML = `
-                            <td>${item.MANV || ''}</td>
-                            <td>${item.NGAYCHAMCONG || ''}</td>
-                            <td>${item.GIOVAO || ''}</td>
-                            <td>${item.GIORA || ''}</td>
-                            <td>${item.STATUS || ''}</td>
-                            <td>${item.NOTES || ''}</td>
-                        `;
+                        row.innerHTML = fields.map(field => {
+                            const cellValue = field.value || '';
+                            const style = cellValue === '' ? ' style="background-color: #ffd6d6;"' : '';
+                            return `<td${style}>${cellValue}</td>`;
+                        }).join('');
 
                         resultTable.appendChild(row);
                     });

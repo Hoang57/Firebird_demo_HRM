@@ -134,7 +134,7 @@
                       </div>
                       <div class="col-md-6">
                         <label for="editNGAYSINH" class="form-label fw-semibold">Date of Birth</label>
-                        <input type="date" id="DOB" name="DOB" class="form-control" required />
+                        <input type="text" id="DOB" name="DOB" class="form-control" required />
                       </div>
                       <div class="col-md-6">
                         <label for="editDIACHI" class="form-label fw-semibold">Gender</label>
@@ -154,7 +154,7 @@
                       </div>
                       <div class="col-md-6">
                         <label for="editNGAYVAOLAM" class="form-label fw-semibold">Join Date</label>
-                        <input type="date" id="JoinDate" name="JOIN_DATE" class="form-control" required />
+                        <input type="text" id="JoinDate" name="JOIN_DATE" class="form-control" required />
                       </div>
                       <div class="col-md-6">
                         <label for="editMAPB" class="form-label fw-semibold">Department</label>
@@ -344,12 +344,29 @@
           .then((emp) => {
             document.getElementById("editMANV").value = emp.MANV;
             document.getElementById("Name").value = emp.HOTEN;
-            document.getElementById("DOB").value = emp.NGAYSINH;
+            // Chuyển đổi ngày sinh sang định dạng dd/mm/yyyy nếu có
+            if (emp.NGAYSINH) {
+              const dateObj = new Date(emp.NGAYSINH);
+              const day = String(dateObj.getDate()).padStart(2, '0');
+              const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+              const year = dateObj.getFullYear();
+              document.getElementById("DOB").value = `${day}/${month}/${year}`;
+            } else {
+              document.getElementById("DOB").value = "";
+            }
             document.getElementById("Gender").value = emp.GIOITINH;
             document.getElementById("Address").value = emp.DIACHI;
             document.getElementById("PhoneNum").value = emp.SODT;
             document.getElementById("editEMAIL").value = emp.EMAIL;
-            document.getElementById("JoinDate").value = emp.NGAYVAOLAM;
+            if (emp.NGAYVAOLAM) {
+              const dateObj = new Date(emp.NGAYVAOLAM);
+              const day = String(dateObj.getDate()).padStart(2, '0');
+              const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+              const year = dateObj.getFullYear();
+              document.getElementById("JoinDate").value = `${day}/${month}/${year}`;
+            } else {
+              document.getElementById("JoinDate").value = "";
+            }
             document.getElementById("DepartmentID").value = emp.MAPB;
             document.getElementById("PositionID").value = emp.MACV;
             document.getElementById("Status").value = emp.TRANGTHAI;
@@ -366,17 +383,33 @@
         event.preventDefault();
 
         const data = {
-          MANV: document.getElementById("editMANV").value,
-          HOTEN: document.getElementById("Name").value,
-          NGAYSINH: document.getElementById("DOB").value,
-          GIOITINH: document.getElementById("Gender").value,
-          DIACHI: document.getElementById("Address").value,
-          SODT: document.getElementById("PhoneNum").value,
-          EMAIL: document.getElementById("editEMAIL").value,
-          NGAYVAOLAM: document.getElementById("JoinDate").value,
-          MAPB: document.getElementById("DepartmentID").value,
-          MACV: document.getElementById("PositionID").value,
-          TRANGTHAI: document.getElementById("Status").value,
+            MANV: document.getElementById("editMANV").value,
+            HOTEN: document.getElementById("Name").value,
+            // Chuyển đổi ngày sinh từ dd/mm/yyyy sang yyyy-mm-dd để lưu vào database
+            NGAYSINH: (() => {
+            const val = document.getElementById("DOB").value;
+            if (val.includes("/")) {
+              const [day, month, year] = val.split("/");
+              return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+            }
+            return val; // Nếu đã đúng định dạng yyyy-mm-dd
+            })(),
+            GIOITINH: document.getElementById("Gender").value,
+            DIACHI: document.getElementById("Address").value,
+            SODT: document.getElementById("PhoneNum").value,
+            EMAIL: document.getElementById("editEMAIL").value,
+            // Chuyển đổi ngày vào làm từ dd/mm/yyyy sang yyyy-mm-dd để lưu vào database
+            NGAYVAOLAM: (() => {
+            const val = document.getElementById("JoinDate").value;
+            if (val.includes("/")) {
+              const [day, month, year] = val.split("/");
+              return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+            }
+            return val;
+            })(),
+            MAPB: document.getElementById("DepartmentID").value,
+            MACV: document.getElementById("PositionID").value,
+            TRANGTHAI: document.getElementById("Status").value,
         };
         fetch(`/api/update_employee/${data.MANV}`, {
           method: "PUT",
@@ -411,7 +444,7 @@
             .then((result) => {
               if (result.message) {
                 alert("Employee delete successfully!");
-               
+               searchEmployee();
               } else {
                 alert(result.error || "Xóa thất bại.");
               }
